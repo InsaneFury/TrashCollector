@@ -12,6 +12,7 @@ public class UIManager : MonobehaviourSingleton<UIManager>
 
     [Header("Score Settings")]
     public TextMeshProUGUI score;
+    public TextMeshProUGUI time;
 
     [Header("Pause Settings")]
     public GameObject pause;
@@ -21,6 +22,8 @@ public class UIManager : MonobehaviourSingleton<UIManager>
     public TextMeshProUGUI maxItemsCollected;
 
     Player player;
+    ScoreManager sManager;
+    TimerManager tManager;
 
     public override void Awake()
     {
@@ -32,11 +35,13 @@ public class UIManager : MonobehaviourSingleton<UIManager>
         inGameHUD.SetActive(false);
         menuHUD.SetActive(true);
         player = Player.Get();
+        sManager = ScoreManager.Get();
+        tManager = TimerManager.Get();
     }
 
     private void Update()
     {
-
+        RefreshStats();
     }
 
     public void ActiveInGameUI()
@@ -51,9 +56,8 @@ public class UIManager : MonobehaviourSingleton<UIManager>
         menuHUD.SetActive(true);
     }
 
-    public void SetGameOverResults(int i,int s)
+    public void SetGameOverResults(int s)
     {
-        maxItemsCollected.text = i.ToString();
         score.text = s.ToString();
     }
 
@@ -61,7 +65,8 @@ public class UIManager : MonobehaviourSingleton<UIManager>
 
     public void RefreshStats()
     {
-        score.text = ScoreManager.Get().score.ToString();
+        score.text = sManager.score.ToString();
+        time.text = tManager.seconds.ToString();
     }
 
     #endregion

@@ -22,6 +22,12 @@ public class Player : MonobehaviourSingleton<Player>
 
     public static event Action<Player> OnCollectAction;
 
+
+    public override void Awake()
+    {
+        base.Awake();
+    }
+
     void Start()
     {
         cam = Camera.main;
@@ -49,7 +55,7 @@ public class Player : MonobehaviourSingleton<Player>
             }
         }
 
-        if (moving)
+        if (moving && canPlay)
         {
             Move();
         }

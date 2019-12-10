@@ -16,8 +16,11 @@ public class GameManager : MonobehaviourSingleton<GameManager>
 
     [Header("GameOver")]
     public GameObject gameOverText;
+    public GameObject winText;
 
     ScoreManager sManager;
+    UIManager uiManager;
+    TimerManager tManager;
 
     public override void Awake()
     {
@@ -27,6 +30,8 @@ public class GameManager : MonobehaviourSingleton<GameManager>
     void Start()
     {
         sManager = ScoreManager.Get();
+        uiManager = UIManager.Get();
+        tManager = TimerManager.Get();
         player = Player.Get();
     }
 
@@ -36,17 +41,21 @@ public class GameManager : MonobehaviourSingleton<GameManager>
         {
             PauseGame();
         }
-        if (!player.isAlive)
+        if (tManager.timeOut)
         {
             GameOver();
+        }
+        if (!tManager.timeOut && sManager.itemsCollected == 7)
+        {
+            Win();
         }
     }
 
     public void ActiveGame()
     {
+        ResetPlayer();
         gameStarted = true;
-        player.canPlay = true;
-        UIManager.Get().ActiveInGameUI();
+        uiManager.ActiveInGameUI();
     }
 
     void GameOver()
@@ -54,13 +63,21 @@ public class GameManager : MonobehaviourSingleton<GameManager>
         gameStarted = false;
         player.canPlay = false;
         gameOverText.SetActive(true);
-        UIManager.Get().SetGameOverResults(sManager.itemsCollected, sManager.score);
+        uiManager.SetGameOverResults(sManager.score);
+    }
+
+    void Win()
+    {
+        gameStarted = false;
+        player.canPlay = false;
+        gameOverText.SetActive(true);
+        uiManager.SetGameOverResults(sManager.score);
     }
 
     void PauseGame()
     {
         pause = !pause;
-        UIManager.Get().pause.SetActive(pause);
+        uiManager.pause.SetActive(pause);
         Time.timeScale = pause ? 0 : 1;
         player.canPlay = !pause;
     }
@@ -70,9 +87,10 @@ public class GameManager : MonobehaviourSingleton<GameManager>
         ResetPlayer();
         ActiveGame();
         gameOverText.SetActive(false);
-        ScoreManager.Get().score = 0;
-        ScoreManager.Get().itemsCollected = 0;
-        if(pause)
+        sManager.score = 0;
+        sManager.itemsCollected = 0;
+        tManager.ResetTimer();
+        if (pause)
         PauseGame();
     }
 
@@ -80,7 +98,7 @@ public class GameManager : MonobehaviourSingleton<GameManager>
     {
         if (pause)
             PauseGame();
-        UIManager.Get().InitMenu();
+        uiManager.InitMenu();
 
         //Sacar y cambiar por volver al menu sin recagar la scene.
         SceneManager.LoadScene("Gameplay");
