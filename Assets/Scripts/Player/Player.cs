@@ -17,6 +17,8 @@ public class Player : MonobehaviourSingleton<Player>
     public bool canPlay = false;
     public bool isAlive = true;
 
+    public ParticleSystem puff;
+
     private Animator animator;
     private bool attack;
 
@@ -105,7 +107,7 @@ public class Player : MonobehaviourSingleton<Player>
         if (other.CompareTag("item"))
         {
             Destroy(other.gameObject);
-
+            puff.Emit(3);
             if (OnCollectAction != null)
             OnCollectAction(this);
         }
