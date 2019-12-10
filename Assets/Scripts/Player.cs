@@ -92,7 +92,5 @@ public class Player : MonoBehaviour
     {
         moving = false;
         rb.velocity = Vector3.zero;
-        rightWheel.transform.rotation = Quaternion.identity;
-        leftWheel.transform.rotation = Quaternion.identity;
     }
 }
