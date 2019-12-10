@@ -36,7 +36,7 @@ public class Player : MonobehaviourSingleton<Player>
         RaycastHit hit;
         GameObject goHit;
 
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButtonDown(1))
         {
             if (Physics.Raycast(ray, out hit, 50))
             {
