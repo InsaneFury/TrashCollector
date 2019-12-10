@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-public class Player : MonoBehaviour
+public class Player : MonobehaviourSingleton<Player>
 {
     protected Camera cam;
     private bool moving;
@@ -13,13 +14,13 @@ public class Player : MonoBehaviour
     public float speed = 10;
     public float rotationSpeed = 5;
     public float distanceToStop = 1;
-
+    public bool canPlay = false;
+    public bool isAlive = true;
 
     private Animator animator;
     private bool attack;
 
-    public GameObject rightWheel;
-    public GameObject leftWheel;
+    public static event Action<Player> OnCollectAction;
 
     void Start()
     {
@@ -69,17 +70,16 @@ public class Player : MonoBehaviour
     {
         Vector3 wantedVelocity = transform.forward.normalized * speed * Time.deltaTime;
 
-        RaycastHit hitInfo;
-        Vector3 m_GroundNormal;
-        if (Physics.Raycast(transform.position + (Vector3.up * 0.1f), Vector3.down, out hitInfo, 5))
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position + (Vector3.up *0.1f), Vector3.down, out hit, 5))
         {
-            m_GroundNormal = hitInfo.normal;
-            wantedVelocity = Vector3.ProjectOnPlane(wantedVelocity, m_GroundNormal);
-            
+            wantedVelocity = Vector3.ProjectOnPlane(wantedVelocity, hit.normal);
+
             Vector3 des = new Vector3(movingTo.x, transform.position.y, movingTo.z);
 
             Quaternion destiny = Quaternion.identity;
-            destiny.SetLookRotation(des - transform.position, m_GroundNormal);
+            destiny.SetLookRotation(des - transform.position, hit.normal);
 
             Quaternion carRotation = Quaternion.Lerp(transform.rotation, destiny, rotationSpeed * Time.deltaTime);
             transform.rotation = carRotation;
@@ -92,5 +92,16 @@ public class Player : MonoBehaviour
     {
         moving = false;
         rb.velocity = Vector3.zero;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("item"))
+        {
+            Destroy(other.gameObject);
+
+            if (OnCollectAction != null)
+            OnCollectAction(this);
+        }
     }
 }
